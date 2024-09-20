@@ -1,0 +1,1 @@
+Summarize this pdf, include all the changes in the national electrical code that are mentioned under each section after "[[Panel Statement]]".
