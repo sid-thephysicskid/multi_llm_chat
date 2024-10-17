@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 import asyncio
+import fitz  # PyMuPDF
 
 load_dotenv()
 
@@ -55,11 +56,15 @@ async def stream_gemini_response(prompt, response_container):
         await asyncio.sleep(0)
 
 def extract_text_from_pdf(pdf_file):
-    pdf_reader = PdfReader(pdf_file)
-    text = ""
-    for page in pdf_reader.pages:
-        text += page.extract_text()
-    return text
+    try:
+        with fitz.open(stream=pdf_file.read(), filetype="pdf") as doc:
+            text = ""
+            for page in doc:
+                text += page.get_text()
+        return text
+    except Exception as e:
+        st.error(f"Error extracting text from PDF: {str(e)}")
+        return None
 
 async def process_responses(prompt, openai_container, anthropic_container, gemini_container):
     tasks = []
@@ -94,7 +99,12 @@ with right_column:
             # Prepare prompt
             if uploaded_file:
                 pdf_text = extract_text_from_pdf(uploaded_file)
-                prompt = f"PDF Content:\n\n{pdf_text[:4000]}\n\nUser Question: {user_input}"
+                if pdf_text:
+                    # Use a larger chunk of the PDF content, or consider summarizing it
+                    prompt = f"PDF Content:\n\n{pdf_text[:10000]}\n\nUser Question: {user_input}"
+                    st.info(f"PDF content length: {len(pdf_text)} characters")
+                else:
+                    prompt = f"Error occurred while processing the PDF. User Question: {user_input}"
             else:
                 prompt = user_input
 
