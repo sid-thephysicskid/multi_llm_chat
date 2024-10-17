@@ -34,7 +34,8 @@ async def stream_openai_response(prompt, response_container):
 
 async def stream_anthropic_response(prompt, response_container):
     with anthropic_client.messages.stream(
-        model="claude-3-opus-20240229",
+        # model="claude-3-opus-20240229",
+        model='claude-3-5-sonnet-20240620',
         max_tokens=2000,
         messages=[
             {"role": "user", "content": prompt}
