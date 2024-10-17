@@ -4,13 +4,12 @@ import anthropic
 import google.generativeai as genai
 import os
 from dotenv import load_dotenv
-from PyPDF2 import PdfReader
 import asyncio
 import fitz  # PyMuPDF
 
 load_dotenv()
 
-# Initialize clients only if API keys are present
+
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) if os.getenv("OPENAI_API_KEY") else None
 anthropic_client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY")) if os.getenv("ANTHROPIC_API_KEY") else None
 if os.getenv("GOOGLE_API_KEY"):
@@ -96,7 +95,7 @@ with right_column:
     
     if st.button("Send", use_container_width=True):
         if user_input:
-            # Prepare prompt
+            # prepare prompt
             if uploaded_file:
                 pdf_text = extract_text_from_pdf(uploaded_file)
                 if pdf_text:
@@ -108,7 +107,7 @@ with right_column:
             else:
                 prompt = user_input
 
-            # Create response columns
+            #  response columns
             openai_col, anthropic_col, gemini_col = st.columns(3)
 
             with openai_col:
@@ -132,12 +131,10 @@ with right_column:
                 else:
                     gemini_response = None
 
-            # Process responses
+            # responses
             asyncio.run(process_responses(prompt, openai_response, anthropic_response, gemini_response))
         else:
             st.warning("Please enter a prompt or question.")
 
 if __name__ == "__main__":
-    # This block is optional, but it's good practice for Streamlit apps
-    # It ensures the app runs only when executed directly
     pass
