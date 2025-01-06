@@ -4,7 +4,7 @@ import anthropic
 import os
 from dotenv import load_dotenv
 import asyncio
-import pymupdf
+import fitz  # PyMuPDF
 from prompt_manager import PromptManager
 from config import DEFAULT_SYSTEM_PROMPTS, MODEL_CONFIGS, MODEL_PROVIDERS
 
@@ -87,7 +87,7 @@ async def stream_nvidia_response(model_id, prompt, system_prompt, response_conta
 
 def extract_text_from_pdf(pdf_file):
     try:
-        with pymupdf.open(stream=pdf_file.read(), filetype="pdf") as doc:
+        with fitz.open(stream=pdf_file.read(), filetype="pdf") as doc:
             text = ""
             for page in doc:
                 text += page.get_text()
