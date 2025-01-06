@@ -25,10 +25,18 @@ prompt_manager = PromptManager()
 
 async def stream_openai_response(model_id, prompt, system_prompt, response_container):
     try:
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
-        ]
+        # For O1-Mini, combine system prompt and user prompt like we do for Nemotron
+        if model_id == "o1-mini":
+            combined_prompt = f"{system_prompt}\n\nUser: {prompt}\nAssistant:"
+            messages = [
+                {"role": "user", "content": combined_prompt}
+            ]
+        else:
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ]
+        
         response = openai_client.chat.completions.create(
             model=MODEL_CONFIGS[model_id]["model"],
             messages=messages,
@@ -71,9 +79,9 @@ async def stream_nvidia_response(model_id, prompt, system_prompt, response_conta
         response = nvidia_client.chat.completions.create(
             model=MODEL_CONFIGS[model_id]["model"],
             messages=messages,
-            temperature=0.5,
+            temperature=0.7,  # Increased from 0.5 for more varied responses
             top_p=1,
-            max_tokens=1024,
+            max_tokens=2048,  # Increased from 1024 for longer responses
             stream=True
         )
         full_response = ""
